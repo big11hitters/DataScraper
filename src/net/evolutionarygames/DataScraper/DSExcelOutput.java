@@ -12,9 +12,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 public class DSExcelOutput {
 	DSWebScraper DSWS = new DSWebScraper();
 	
-	public void createExcelSheet() throws IOException{
-		
-		DSWS.runFileArrayProvider();
+	public void createExcelSheet(String filePath) throws IOException{
+		DSWS.runFileArrayProvider(filePath);
 		
 		// create a new file
 		FileOutputStream out = new FileOutputStream("/Users/Anthony/Desktop/workbook.xls");
@@ -28,22 +27,20 @@ public class DSExcelOutput {
 		Cell cell = null;
 		int listSize = DSWS.getPriceList().size();
 		int rownum1;
-		for (rownum1 = 0; rownum1 < 5; rownum1++){
+		for (rownum1 = 0; rownum1 < listSize; rownum1++){
 		    // create a row
 		    row = s.createRow(rownum1);
 		    
-		    for (int cellnum = 0; cellnum < listSize; cellnum++){
-		        // create a numeric cell
+		    for (int cellnum = 0; cellnum < 1; cellnum++){
 		        cell = row.createCell(cellnum);
-		        if(cell.equals(1))
-		        	cell.setCellValue(DSWS.getPriceList().get(cellnum));
-		        if(cell.equals(2))
-		        	cell.setCellValue(DSWS.getPriceList().get(cellnum));
-		        
+		        cell.setCellValue(DSWS.getPriceList().get(cellnum));
+		    }
+		    for(int cellnum = 1; cellnum < 2; cellnum++){
+		    	cell = row.createCell(cellnum);
+	        	cell.setCellValue(DSWS.getBrandList().get(cellnum));
 		    }
 		}
 		wb.write(out);
 		out.close();
 	}
-	
 }
