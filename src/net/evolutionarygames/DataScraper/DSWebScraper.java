@@ -16,6 +16,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class DSWebScraper { 
+	public boolean unknownHost = false;
+	public boolean nullPointer = false;
+	public boolean socketTimeout = false;
+	public boolean illegalArg = false;
 	///////Elements for each data field I need to pull///////
 	private static Element price;
 	private static Element brand;
@@ -30,6 +34,9 @@ public class DSWebScraper {
 	private static ArrayList<String> weightList = new ArrayList<String>();
 	
 	///////getter methods for each ArrayList///////
+	public ArrayList<String> getItemList(){
+		return itemList;
+	}
 	public ArrayList<String> getPriceList(){
 		return priceList;
 	}
@@ -68,52 +75,65 @@ public class DSWebScraper {
         		url = ("http://www.grainger.com/Grainger/wwg/search.shtml?searchQuery=" + item + "&op=search&Ntt=" + item + "&N=0&GlobalSearch=true&sst=subset");
         		Document doc = Jsoup.connect(url).timeout(5000).get();
         		
-            		Elements rows = doc.select("td[class = tdrightalign]"); //choosing the html tags from the website
+           		Elements rows = doc.select("td[class = tdrightalign]"); //choosing the html tags from the website
         		
-            		for(@SuppressWarnings("unused") Element i : rows){ //going through the rows on the website
-            			switch(rows.size()){ //since the amount of rows can vary, I've covered the different row sizes with this switch statement
-            			case 10:
-            				price = rows.get(1);
-            				brand = rows.get(2);
-            				model = rows.get(3);
-            				weight = rows.get(6);
-            				break;
-            			case 11:
-            				price = rows.get(1);
-            				brand = rows.get(2);
-            				model = rows.get(3);
-            				weight = rows.get(7);
-            				break;
-            			case 12:
-            				price = rows.get(1);
-            				brand = rows.get(3);
-            				model = rows.get(4);
-            				weight = rows.get(8);
-            				break;
-            			}
+           		for(@SuppressWarnings("unused") Element i : rows){ //going through the rows on the website
+           			switch(rows.size()){ //since the amount of rows can vary, I've covered the different row sizes with this switch statement
+           			case 10:
+           				price = rows.get(1);
+           				brand = rows.get(2);
+           				model = rows.get(3);
+            			weight = rows.get(6);
+            			break;
+            		case 11:
+            			price = rows.get(1);
+            			brand = rows.get(2);
+            			model = rows.get(3);
+            			weight = rows.get(7);
+           				break;
+           			case 12:
+           				price = rows.get(1);
+           				brand = rows.get(3);
+            			model = rows.get(4);
+            			weight = rows.get(8);
+            			break;
             		}
+           		}
             		
-            		//adding the data fields to their respective arrays.
-            		itemList.add(item);
-            		priceList.add(price.text());
-            		brandList.add(brand.text());
-            		modelList.add(model.text());
-            		weightList.add(weight.text());
-        		}
-        	
-    		System.out.println("Finished " + lines.length + " lines");
+           		//adding the data fields to their respective arrays.
+           		itemList.add(item);
+           		priceList.add(price.text());
+           		brandList.add(brand.text());
+           		modelList.add(model.text());
+           		weightList.add(weight.text());
+        	}	
         }
         //catching errors that are known to potentially happen, and alerting the user.
         catch(UnknownHostException ex){
+        	unknownHost = true;
         	System.out.println("Either the host is not correctly typed in, or the internet is down.");
         }
         catch(SocketTimeoutException STex){
+        	socketTimeout = true;
         	System.out.println(STex);
         	System.out.println("******Connection Lost********");
         }
         catch(NullPointerException ex){
+        	nullPointer = true;
         	System.out.println("Null Pointer -- Please check the file for any blank lines and remove them.");
         }
+        catch(IllegalArgumentException ex){
+        	illegalArg = true;
+        	System.out.println("Illegal Argument, please check the file for any incorrect item numbers");
+        }
     }
+	public void cleanUp(){ //method that will clear each array
+		itemList.clear();
+		priceList.clear();
+		brandList.clear();
+		modelList.clear();
+		weightList.clear();
+		
+	}
 	
 }
