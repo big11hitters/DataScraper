@@ -11,10 +11,13 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 public class DSExcelOutput {
 	DSWebScraper DSWS = new DSWebScraper();
+	String[] titles = {"Item No.","Price","Brand","Model No.","Weight"};
 	
-	public void createExcelSheet(String filePath, String outputPath) throws IOException{
+	public void getData(String filePath) throws IOException{
 		DSWS.runFileArrayProvider(filePath);
-		
+	}
+	
+	public void createExcelSheet(String outputPath) throws IOException{		
 		// create a new file
 		FileOutputStream out = new FileOutputStream(outputPath);
 		// create a new workbook

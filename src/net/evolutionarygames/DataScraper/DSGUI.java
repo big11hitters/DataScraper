@@ -18,6 +18,9 @@ public class DSGUI extends JPanel {
 	
 	private static final long serialVersionUID = 1L;
 
+	public boolean showGetDataButton = true;
+	public boolean showCreateExcelButton = false;
+	
 	//Class references for use below
 	private DSExcelOutput DSEO = new DSExcelOutput();
 	private DSWebScraper DSWS = new DSWebScraper();
@@ -25,7 +28,7 @@ public class DSGUI extends JPanel {
 	//labels, textfields and buttons
 	private JLabel pendingLabel;
 	private static JTextField textField, outputFileField;
-	private static Button browseButton, getDataButton, saveButton;
+	private static Button browseButton, saveButton, getDataButton, createExcelButton;
 	private static String filePath, outputFilePath;
 	
 	public DSGUI(){
@@ -35,8 +38,9 @@ public class DSGUI extends JPanel {
 		//various components that will be displayed in the application
 		pendingLabel = new JLabel("Browse to where you want to save");
 		browseButton = new Button("Browse");
-		getDataButton = new Button("Get Data");
 		saveButton = new Button("Choose Save Path");
+		getDataButton = new Button("Get Data");
+		createExcelButton = new Button("Create Excel Sheet");
 		textField = new JTextField(20);
 		outputFileField = new JTextField(20);
 		//only allow the program to edit the textfield, no user editing abilities
@@ -46,6 +50,11 @@ public class DSGUI extends JPanel {
 		getDataButton.setEnabled(false);
 		browseButton.setEnabled(false);
 		
+		this.initiateButtonActionListeners();
+		this.createAndShowGUI();
+	}
+	
+	public void initiateButtonActionListeners(){
 		//add action listener for save button
 		saveButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent evt) {//open a JFileChooser save dialog box
@@ -61,11 +70,15 @@ public class DSGUI extends JPanel {
 					outputFileField.setText(outputFilePath);
 					browseButton.setEnabled(true);
 					pendingLabel.setText("Browse to where the file with the item numbers is");
+					if(showGetDataButton == false){
+						showGetDataButton = true;
+						remove(createExcelButton);
+						add(getDataButton);
+					}
 				}
 			}
-			
 		});
-		
+				
 		//add an action listener for the browse button.
 		browseButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent evt){
@@ -85,12 +98,26 @@ public class DSGUI extends JPanel {
 				}
 			}
 		});
-		
+				
 		//action listener for the get data button
 		getDataButton.addActionListener(new ActionListener(){ //getDataButton actionListener
 			public void actionPerformed(ActionEvent evt){
 				try {
-					DSEO.createExcelSheet(filePath, outputFilePath); //begin getting the data and creating the Excel sheet
+					DSEO.getData(filePath);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				showGetDataButton = false;
+				remove(getDataButton);
+				add(createExcelButton);
+				pendingLabel.setText("Please click 'Create Excel Sheet' to complete the process");
+			}
+		});
+		
+		createExcelButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent evt){
+				try {
+					DSEO.createExcelSheet(outputFilePath); //begin getting the data and creating the Excel sheet
 					if(DSWS.nullPointer == true)
 						pendingLabel.setText("Please check the file for any blank lines and remove them");
 					if(DSWS.socketTimeout == true)
@@ -104,22 +131,31 @@ public class DSGUI extends JPanel {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-
 			}
 		});
+	}
+	
+	public void createAndShowGUI(){
 		//add the buttons/labels to the application
 		add(outputFileField);
 		add(saveButton);
 		add(textField);
 		add(browseButton);
-		add(getDataButton);
 		add(pendingLabel);
-		
+		if(showGetDataButton == true){
+			add(getDataButton);
+		}
+		else{
+			remove(getDataButton);
+			add(createExcelButton);
+		}
+				
 		//application's size and color
 		textField.setBackground(Color.WHITE);
 		setPreferredSize(new Dimension(1000,110));
 		this.setMaximumSize(getSize());
 		setBackground(Color.WHITE);
-		
 	}
+	
+	
 }
